@@ -1,0 +1,19 @@
+{
+  "databaseChangeLog": [
+    {
+      "include": {
+        "file": "public/tables/users.sql"
+      }
+    },
+    {
+      "include": {
+        "file": "public/tables/temperature_history.sql"
+      }
+    },
+    {
+      "include": {
+        "file": "public/tables/heater_timeslot.sql"
+      }
+    }
+  ]
+}

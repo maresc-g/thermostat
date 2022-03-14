@@ -1,5 +1,16 @@
 --liquibase formatted sql
 
 --changeset guillaume.marescaux:1
+DO
+'
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE  rolname = ''server'') THEN
+        CREATE USER server WITH ENCRYPTED PASSWORD ''server'';
+    END IF;
+END
+';
 
-CREATE USER server WITH ENCRYPTED PASSWORD 'server';
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO server;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO server;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TYPES TO server;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO server;
