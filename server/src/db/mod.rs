@@ -4,6 +4,9 @@ use tokio::net::TcpStream;
 use tokio_postgres::types::ToSql;
 use tokio_postgres::row::Row;
 use std::collections::HashMap;
+use std::fs;
+
+static QUERY_PREFIX: &str = "sql/query/";
 
 pub struct DbItf {
     client: Client,
@@ -18,19 +21,21 @@ impl DbItf {
             client,
             prepared_queries: HashMap::new()
         };
-        dbitf.prepare_from_file("SELECT 1").await;
-
         tokio::spawn(async move {
             if let Err(e) = connection.await {
-                eprintln!("connection error: {}", e);
+                eprintln!("DB connection error: {}", e);
             }
         });
+
+        dbitf.prepare_from_file("heater_timeslot/insert").await;
 
         return dbitf;
     }
 
-    async fn prepare_from_file(&mut self, filename: &str) {
-        self.prepared_queries.insert(String::from("a"), self.client.prepare(filename).await.unwrap());
+    async fn prepare_from_file(&mut self, query_name: &str) {
+        let filename = format!("{}{}.sql", QUERY_PREFIX, query_name);
+        let contents = fs::read_to_string(filename).expect(format!("Can't open query file {}", filename), );
+        self.prepared_queries.insert(query_name.to_string(), self.client.prepare(&contents).await.unwrap());
     }
 
     pub async fn query(

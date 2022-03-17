@@ -9,4 +9,5 @@ edition = "2021"
 gpio = "0.4.1"
 tokio = { version = "1", features = ["full"] }
 warp = "0.3"
-tokio-postgres = "0.7.5"
+tokio-postgres = { version = "0.7.5", features = ["with-chrono-0_4"] }
+chrono = "0.4"
