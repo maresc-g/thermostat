@@ -34,7 +34,8 @@ impl DbItf {
 
     async fn prepare_from_file(&mut self, query_name: &str) {
         let filename = format!("{}{}.sql", QUERY_PREFIX, query_name);
-        let contents = fs::read_to_string(filename).expect(format!("Can't open query file {}", filename), );
+        let error = format!("Can't open query file {}", filename);
+        let contents = fs::read_to_string(filename).expect(error.as_str(), );
         self.prepared_queries.insert(query_name.to_string(), self.client.prepare(&contents).await.unwrap());
     }
 
