@@ -1,36 +1,26 @@
-use chrono::{Date, DateTime, Utc};
+use chrono::{DateTime, FixedOffset};
 use warp::{http, Filter};
 use serde_derive::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use std::convert::Infallible;
-use crate::db::DbItf;
 use super::db;
 
 #[derive(Deserialize, Serialize, Debug)]
 struct TemperatureHistoryRequest {
-    min_date: DateTime<Utc>,
-    max_date: DateTime<Utc>
+    min_date: DateTime<FixedOffset>,
+    max_date: DateTime<FixedOffset>
 }
 
 type Db = Arc<Mutex<db::DbItf>>;
 
 pub async fn run_http_server() {
-    let dbitf = Arc::new(Mutex::new(db::DbItf::new()));
-    // let dbitf_filter = warp::any().map(move || dbitf.clone());
+    let dbitf = Arc::new(Mutex::new(db::DbItf::new().await));
     let temperature_history = warp::path!("v1" / "temperatures")
-        .and(with_db(dbitf.clone()))
         .and(warp::get())
-        .and_then(test);
-
-
-    // let get = warp::get()
-    //     .and(temperature_history);
-    //
-    // let post = warp::post();
-    //
-    // let routes = get;
-    //     // .or(post);
+        .and(warp::query::<TemperatureHistoryRequest>())
+        .and(with_db(dbitf))
+        .and_then(get_temperature_history);
 
     warp::serve(temperature_history)
         .run(([127, 0, 0, 1], 8080))
@@ -41,9 +31,10 @@ fn with_db(db: Db) -> impl Filter<Extract = (Db,), Error = std::convert::Infalli
     warp::any().map(move || db.clone())
 }
 
-pub async fn test(db: Db) -> Result<impl warp::Reply, Infallible> {
+async fn get_temperature_history(thr: TemperatureHistoryRequest, db: Db) -> Result<impl warp::Reply, Infallible> {
+    let res = db.lock().await.query("temperature/select_by_min_max", &[&thr.min_date, &thr.max_date]).await;
     Ok(warp::reply::with_status(
-        "Added items to the grocery list",
-        http::StatusCode::CREATED,
+        format!("{}", serde_json::to_string(&db::temperature::to_temperature_history_vec(res.unwrap())).unwrap()),
+        http::StatusCode::OK,
     ))
 }

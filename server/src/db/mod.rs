@@ -1,6 +1,7 @@
-use tokio_postgres::{Connection, Client, Error, Socket, Statement};
-use tokio_postgres::tls::{NoTls, NoTlsStream};
-use tokio::net::TcpStream;
+pub mod temperature;
+
+use tokio_postgres::{Client, Error, Statement};
+use tokio_postgres::tls::{NoTls};
 use tokio_postgres::types::ToSql;
 use tokio_postgres::row::Row;
 use std::collections::HashMap;
@@ -28,6 +29,7 @@ impl DbItf {
         });
 
         dbitf.prepare_from_file("heater_timeslot/insert").await;
+        dbitf.prepare_from_file("temperature/select_by_min_max").await;
 
         return dbitf;
     }
