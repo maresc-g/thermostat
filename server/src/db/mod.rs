@@ -1,4 +1,5 @@
 pub mod temperature;
+pub mod heater_timeslot;
 
 use tokio_postgres::{Client, Error, Statement};
 use tokio_postgres::tls::{NoTls};
@@ -28,8 +29,8 @@ impl DbItf {
             }
         });
 
-        dbitf.prepare_from_file("heater_timeslot/insert").await;
-        dbitf.prepare_from_file("temperature/select_by_min_max").await;
+        heater_timeslot::prepare_all(&mut dbitf).await;
+        temperature::prepare_all(&mut dbitf).await;
 
         return dbitf;
     }

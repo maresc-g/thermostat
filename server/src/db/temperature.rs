@@ -8,6 +8,11 @@ pub struct TemperatureHistory {
     date: DateTime<FixedOffset>
 }
 
+pub(super) async fn prepare_all(db: &mut super::DbItf) {
+    db.prepare_from_file("temperature/select_by_min_max").await;
+    db.prepare_from_file("temperature/insert").await;
+}
+
 pub fn to_temperature_history(row: Row) -> TemperatureHistory {
     TemperatureHistory {
         temperature: row.get("temperature"),
