@@ -1,6 +1,7 @@
 mod api;
 mod exec;
 mod db;
+mod structs;
 
 #[tokio::main]
 async fn main() {
