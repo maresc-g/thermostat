@@ -9,9 +9,15 @@ pub struct TemperatureHistoryRequest {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct HeaterTimeSlot {
+    pub pk: Option<i64>,
     pub target_temperature: f64,
     pub start_day: i32,
     pub start_time: NaiveTime,
     pub end_day: i32,
     pub end_time: NaiveTime
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct DeleteHeaterTimeSlot {
+    pub pk: i64
 }

@@ -23,14 +23,14 @@ pub async fn get_history(db: &super::DbItf, thr: &TemperatureHistoryRequest) -> 
     to_temperature_history_vec(res)
 }
 
-pub fn to_temperature_history(row: Row) -> TemperatureHistory {
+fn to_temperature_history(row: Row) -> TemperatureHistory {
     TemperatureHistory {
         temperature: row.get("temperature"),
         date: row.get("date")
     }
 }
 
-pub fn to_temperature_history_vec(rows: Vec<Row>) -> Vec<TemperatureHistory> {
+fn to_temperature_history_vec(rows: Vec<Row>) -> Vec<TemperatureHistory> {
     let mut res = Vec::new();
     for r in rows {
         res.push(to_temperature_history(r));
