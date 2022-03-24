@@ -1,8 +1,10 @@
+use chrono::NaiveTime;
 use tokio_postgres::Row;
 use crate::structs::HeaterTimeSlot;
 
 pub(super) async fn prepare_all(db: &mut super::DbItf) {
     db.prepare_from_file("heater_timeslot/select").await;
+    db.prepare_from_file("heater_timeslot/select_by_date").await;
     db.prepare_from_file("heater_timeslot/insert").await;
     db.prepare_from_file("heater_timeslot/update").await;
     db.prepare_from_file("heater_timeslot/delete").await;
@@ -10,6 +12,14 @@ pub(super) async fn prepare_all(db: &mut super::DbItf) {
 
 pub async fn get(db: &super::DbItf) -> Vec<HeaterTimeSlot> {
     to_heater_timeslot_vec(db.query("heater_timeslot/select", &[]).await.unwrap())
+}
+
+pub async fn get_current_timeslot(db: &super::DbItf, day: &u32, time: &NaiveTime) -> Option<HeaterTimeSlot> {
+    let rows = db.query("heater_timeslot/select_by_date", &[&(*day as i32), time]).await.unwrap();
+    if rows.is_empty() {
+        return Option::None;
+    }
+    Option::Some(to_heater_timeslot(&rows[0]))
 }
 
 pub async fn insert(db: &super::DbItf, ts: &HeaterTimeSlot) {
@@ -24,7 +34,7 @@ pub async fn delete(db: &super::DbItf, pk: &i64) {
     db.query("heater_timeslot/delete", &[&pk]).await.unwrap();
 }
 
-fn to_heater_timeslot(row: Row) -> HeaterTimeSlot {
+fn to_heater_timeslot(row: &Row) -> HeaterTimeSlot {
     HeaterTimeSlot {
         pk: row.get("pk"),
         target_temperature: row.get("target_temperature"),
@@ -38,7 +48,7 @@ fn to_heater_timeslot(row: Row) -> HeaterTimeSlot {
 fn to_heater_timeslot_vec(rows: Vec<Row>) -> Vec<HeaterTimeSlot> {
     let mut res = Vec::new();
     for r in rows {
-        res.push(to_heater_timeslot(r));
+        res.push(to_heater_timeslot(&r));
     }
     res
 }
