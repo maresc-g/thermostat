@@ -14,6 +14,11 @@
       "include": {
         "file": "public/tables/heater_timeslot.sql"
       }
+    },
+    {
+      "include": {
+        "file": "public/tables/setting.sql"
+      }
     }
   ]
 }

@@ -1,5 +1,6 @@
 pub mod temperature;
 pub mod heater_timeslot;
+pub mod setting;
 
 use tokio_postgres::{Client, Error, Statement};
 use tokio_postgres::tls::{NoTls};
@@ -31,6 +32,7 @@ impl DbItf {
 
         heater_timeslot::prepare_all(&mut dbitf).await;
         temperature::prepare_all(&mut dbitf).await;
+        setting::prepare_all(&mut dbitf).await;
 
         return dbitf;
     }

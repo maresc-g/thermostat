@@ -9,3 +9,4 @@ CREATE TABLE heater_timeslot(
     end_day INTEGER NOT NULL CHECK (end_day BETWEEN 0 AND 6),
     end_time TIME NOT NULL
 );
+-- rollback DROP TABLE heater_timeslot;

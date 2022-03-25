@@ -6,3 +6,4 @@ CREATE TABLE temperature_history(
     temperature DOUBLE PRECISION NOT NULL,
     date TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+-- rollback DROP TABLE temperature_history;
