@@ -1,5 +1,6 @@
 mod heater_timeslot;
 mod temperature;
+mod setting;
 
 use warp::{Filter};
 use std::sync::Arc;
@@ -12,7 +13,8 @@ pub async fn run_http_server() {
     let db = Arc::new(Mutex::new(db::DbItf::new().await));
 
     let routes = heater_timeslot::create_routes(&db)
-        .or(temperature::create_routes(&db));
+        .or(temperature::create_routes(&db))
+        .or(setting::create_routes(&db));
 
     warp::serve(routes)
         .run(([127, 0, 0, 1], 8080))

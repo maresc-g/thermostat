@@ -20,7 +20,7 @@ fn get_temperature_history_route(db: &Db) -> impl Filter<Extract=impl warp::Repl
         .and_then(get_temperature_history)
 }
 
-pub async fn get_temperature_history(thr: TemperatureHistoryRequest, db: Db) -> Result<impl warp::Reply, Infallible> {
+async fn get_temperature_history(thr: TemperatureHistoryRequest, db: Db) -> Result<impl warp::Reply, Infallible> {
     let res = db::temperature::get_history(db.lock().await.deref(), &thr).await;
     Ok(warp::reply::with_status(
         format!("{}", serde_json::to_string(&res).unwrap()),

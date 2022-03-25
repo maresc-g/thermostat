@@ -46,7 +46,7 @@ fn delete_timeslot_route(db: &Db) -> impl Filter<Extract = impl warp::Reply, Err
         .and_then(delete_timeslot)
 }
 
-pub(super) async fn get_timeslot(db: Db) -> Result<impl warp::Reply, Infallible> {
+async fn get_timeslot(db: Db) -> Result<impl warp::Reply, Infallible> {
     let res = db::heater_timeslot::get(&db.lock().await.deref()).await;
     Ok(warp::reply::with_status(
         format!("{}", serde_json::to_string(&res).unwrap()),
@@ -54,7 +54,7 @@ pub(super) async fn get_timeslot(db: Db) -> Result<impl warp::Reply, Infallible>
     ))
 }
 
-pub(super) async fn add_timeslot(ts: HeaterTimeSlot, db: Db) -> Result<impl warp::Reply, Infallible> {
+async fn add_timeslot(ts: HeaterTimeSlot, db: Db) -> Result<impl warp::Reply, Infallible> {
     db::heater_timeslot::insert(&db.lock().await.deref(), &ts).await;
     Ok(warp::reply::with_status(
         "Ok",
@@ -62,7 +62,7 @@ pub(super) async fn add_timeslot(ts: HeaterTimeSlot, db: Db) -> Result<impl warp
     ))
 }
 
-pub(super) async fn update_timeslot(ts: HeaterTimeSlot, db: Db) -> Result<impl warp::Reply, Infallible> {
+async fn update_timeslot(ts: HeaterTimeSlot, db: Db) -> Result<impl warp::Reply, Infallible> {
     db::heater_timeslot::update(&db.lock().await.deref(), &ts).await;
     Ok(warp::reply::with_status(
         "Ok",
@@ -70,7 +70,7 @@ pub(super) async fn update_timeslot(ts: HeaterTimeSlot, db: Db) -> Result<impl w
     ))
 }
 
-pub(super) async fn delete_timeslot(dhts: DeleteHeaterTimeSlot, db: Db) -> Result<impl warp::Reply, Infallible> {
+async fn delete_timeslot(dhts: DeleteHeaterTimeSlot, db: Db) -> Result<impl warp::Reply, Infallible> {
     db::heater_timeslot::delete(&db.lock().await.deref(), &dhts.pk).await;
     Ok(warp::reply::with_status(
         "Ok",
