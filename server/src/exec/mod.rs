@@ -10,18 +10,19 @@ pub async fn run_main_loop()  {
     let mut last_temp_check = time::UNIX_EPOCH;
     let mut interval = tokio::time::interval(Duration::from_secs(1));
     let mut now;
-    let db = db::DbItf::new().await;
+    let mut db = db::DbItf::new().await;
     let mut current_temperature;
     interval.tick().await;
     loop {
+        let t = db.transaction().await;
         now = Local::now();
         println!("Checking if state needs to change");
         current_temperature = 20_f64; // TODO : read from sensor
         if last_temp_check.elapsed().unwrap().as_millis() > TEMPERATURE_CHECK_DT {
-            temperature::insert(&db, current_temperature).await;
+            temperature::insert(&t, current_temperature).await;
             last_temp_check = time::SystemTime::now();
         }
-        if let Some(current_timeslot) = db::heater_timeslot::get_current_timeslot(&db, &now.naive_local().weekday().num_days_from_monday(), &now.time()).await {
+        if let Some(current_timeslot) = db::heater_timeslot::get_current_timeslot(&t, &now.naive_local().weekday().num_days_from_monday(), &now.time()).await {
             if current_temperature < current_timeslot.target_temperature {
                 // TODO : turn on relay
                 println!("Turning heater on curTemp = {}, targetTemp = {}, date = {}-{}, start = {}-{}, end = {}-{}",
@@ -29,6 +30,7 @@ pub async fn run_main_loop()  {
                 current_timeslot.start_day, current_timeslot.start_time, current_timeslot.end_day, current_timeslot.end_time);
             }
         }
+        t.commit().await;
         interval.tick().await;
     }
 }

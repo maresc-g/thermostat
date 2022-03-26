@@ -2,7 +2,6 @@ use warp::{Filter, http};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use std::convert::Infallible;
-use std::ops::Deref;
 use super::db;
 use crate::structs::TemperatureHistoryRequest;
 
@@ -21,7 +20,9 @@ fn get_temperature_history_route(db: &Db) -> impl Filter<Extract=impl warp::Repl
 }
 
 async fn get_temperature_history(thr: TemperatureHistoryRequest, db: Db) -> Result<impl warp::Reply, Infallible> {
-    let res = db::temperature::get_history(db.lock().await.deref(), &thr).await;
+    let mut dbitf = db.lock().await;
+    let t = dbitf.transaction().await;
+    let res = db::temperature::get_history(&t, &thr).await;
     Ok(warp::reply::with_status(
         format!("{}", serde_json::to_string(&res).unwrap()),
         http::StatusCode::OK,

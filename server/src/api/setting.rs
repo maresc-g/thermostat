@@ -2,7 +2,6 @@ use warp::{Filter, http};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use std::convert::Infallible;
-use std::ops::Deref;
 use serde_derive::{Deserialize, Serialize};
 use super::db;
 
@@ -35,7 +34,9 @@ fn update_setting_route(db: &Db) -> impl Filter<Extract=impl warp::Reply, Error=
 }
 
 async fn get_setting(key: String, db: Db) -> Result<impl warp::Reply, Infallible> {
-    let value = db::setting::get_by_key(db.lock().await.deref(), &key).await;
+    let mut dbitf = db.lock().await;
+    let t = dbitf.transaction().await;
+    let value = db::setting::get_by_key(&t, &key).await;
     Ok(warp::reply::with_status(
         format!("{}", serde_json::to_string(&Setting { key, value }).unwrap()),
         http::StatusCode::OK,
@@ -43,7 +44,10 @@ async fn get_setting(key: String, db: Db) -> Result<impl warp::Reply, Infallible
 }
 
 async fn update_setting(setting: Setting, db: Db) -> Result<impl warp::Reply, Infallible> {
-    db::setting::update_by_key(db.lock().await.deref(), &setting.key, &setting.value).await;
+    let mut dbitf = db.lock().await;
+    let t = dbitf.transaction().await;
+    db::setting::update_by_key(&t, &setting.key, &setting.value).await;
+    t.commit().await;
     Ok(warp::reply::with_status(
         "Ok",
         http::StatusCode::OK,

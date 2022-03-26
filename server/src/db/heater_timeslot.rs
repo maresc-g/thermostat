@@ -10,28 +10,28 @@ pub(super) async fn prepare_all(db: &mut super::DbItf) {
     db.prepare_from_file("heater_timeslot/delete").await;
 }
 
-pub async fn get(db: &super::DbItf) -> Vec<HeaterTimeSlot> {
-    to_heater_timeslot_vec(db.query("heater_timeslot/select", &[]).await.unwrap())
+pub async fn get(t: &super::DbTransaction<'_>) -> Vec<HeaterTimeSlot> {
+    to_heater_timeslot_vec(t.query("heater_timeslot/select", &[]).await.unwrap())
 }
 
-pub async fn get_current_timeslot(db: &super::DbItf, day: &u32, time: &NaiveTime) -> Option<HeaterTimeSlot> {
-    let rows = db.query("heater_timeslot/select_by_date", &[&(*day as i32), time]).await.unwrap();
+pub async fn get_current_timeslot(t: &super::DbTransaction<'_>, day: &u32, time: &NaiveTime) -> Option<HeaterTimeSlot> {
+    let rows = t.query("heater_timeslot/select_by_date", &[&(*day as i32), time]).await.unwrap();
     if rows.is_empty() {
         return Option::None;
     }
     Option::Some(to_heater_timeslot(&rows[0]))
 }
 
-pub async fn insert(db: &super::DbItf, ts: &HeaterTimeSlot) {
-    db.query("heater_timeslot/insert", &[&ts.target_temperature, &ts.start_day, &ts.start_time, &ts.end_day, &ts.end_time]).await.unwrap();
+pub async fn insert(t: &super::DbTransaction<'_>, ts: &HeaterTimeSlot) {
+    t.query("heater_timeslot/insert", &[&ts.target_temperature, &ts.start_day, &ts.start_time, &ts.end_day, &ts.end_time]).await.unwrap();
 }
 
-pub async fn update(db: &super::DbItf, ts: &HeaterTimeSlot) {
-    db.query("heater_timeslot/update", &[&ts.pk, &ts.target_temperature, &ts.start_day, &ts.start_time, &ts.end_day, &ts.end_time]).await.unwrap();
+pub async fn update(t: &super::DbTransaction<'_>, ts: &HeaterTimeSlot) {
+    t.query("heater_timeslot/update", &[&ts.pk, &ts.target_temperature, &ts.start_day, &ts.start_time, &ts.end_day, &ts.end_time]).await.unwrap();
 }
 
-pub async fn delete(db: &super::DbItf, pk: &i64) {
-    db.query("heater_timeslot/delete", &[&pk]).await.unwrap();
+pub async fn delete(t: &super::DbTransaction<'_>, pk: &i64) {
+    t.query("heater_timeslot/delete", &[&pk]).await.unwrap();
 }
 
 fn to_heater_timeslot(row: &Row) -> HeaterTimeSlot {

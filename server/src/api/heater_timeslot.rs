@@ -1,7 +1,6 @@
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use std::convert::Infallible;
-use std::ops::Deref;
 use warp::{Filter, http};
 use super::db;
 use crate::structs::{DeleteHeaterTimeSlot, HeaterTimeSlot};
@@ -47,7 +46,9 @@ fn delete_timeslot_route(db: &Db) -> impl Filter<Extract = impl warp::Reply, Err
 }
 
 async fn get_timeslot(db: Db) -> Result<impl warp::Reply, Infallible> {
-    let res = db::heater_timeslot::get(&db.lock().await.deref()).await;
+    let mut dbitf = db.lock().await;
+    let t = dbitf.transaction().await;
+    let res = db::heater_timeslot::get(&t).await;
     Ok(warp::reply::with_status(
         format!("{}", serde_json::to_string(&res).unwrap()),
         http::StatusCode::OK,
@@ -55,7 +56,10 @@ async fn get_timeslot(db: Db) -> Result<impl warp::Reply, Infallible> {
 }
 
 async fn add_timeslot(ts: HeaterTimeSlot, db: Db) -> Result<impl warp::Reply, Infallible> {
-    db::heater_timeslot::insert(&db.lock().await.deref(), &ts).await;
+    let mut dbitf = db.lock().await;
+    let t = dbitf.transaction().await;
+    db::heater_timeslot::insert(&t, &ts).await;
+    t.commit().await;
     Ok(warp::reply::with_status(
         "Ok",
         http::StatusCode::OK,
@@ -63,7 +67,10 @@ async fn add_timeslot(ts: HeaterTimeSlot, db: Db) -> Result<impl warp::Reply, In
 }
 
 async fn update_timeslot(ts: HeaterTimeSlot, db: Db) -> Result<impl warp::Reply, Infallible> {
-    db::heater_timeslot::update(&db.lock().await.deref(), &ts).await;
+    let mut dbitf = db.lock().await;
+    let t = dbitf.transaction().await;
+    db::heater_timeslot::update(&t, &ts).await;
+    t.commit().await;
     Ok(warp::reply::with_status(
         "Ok",
         http::StatusCode::OK,
@@ -71,7 +78,10 @@ async fn update_timeslot(ts: HeaterTimeSlot, db: Db) -> Result<impl warp::Reply,
 }
 
 async fn delete_timeslot(dhts: DeleteHeaterTimeSlot, db: Db) -> Result<impl warp::Reply, Infallible> {
-    db::heater_timeslot::delete(&db.lock().await.deref(), &dhts.pk).await;
+    let mut dbitf = db.lock().await;
+    let t = dbitf.transaction().await;
+    db::heater_timeslot::delete(&t, &dhts.pk).await;
+    t.commit().await;
     Ok(warp::reply::with_status(
         "Ok",
         http::StatusCode::OK,
