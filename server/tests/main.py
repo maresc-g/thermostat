@@ -33,3 +33,29 @@ print(f'{r.url} ({r.request.method}) => {r.status_code} : {r.text}')
 
 r = req.get('http://127.0.0.1:8080/v1/heater_timeslot')
 print(f'{r.url} ({r.request.method}) => {r.status_code} : {r.json()}')
+
+r = req.get('http://127.0.0.1:8080/v1/setting/default_temperature')
+print(f'{r.url} ({r.request.method}) => {r.status_code} : {r.json()}')
+
+payload = {
+    "key": "default_temperature",
+    "value": "20"
+}
+r = req.put('http://127.0.0.1:8080/v1/setting', data=json.dumps(payload))
+print(f'{r.url} ({r.request.method}) => {r.status_code} : {r.text}')
+
+r = req.get('http://127.0.0.1:8080/v1/setting/default_temperature')
+print(f'{r.url} ({r.request.method}) => {r.status_code} : {r.json()}')
+
+r = req.get('http://127.0.0.1:8080/v1/setting/holiday_mode_enabled')
+print(f'{r.url} ({r.request.method}) => {r.status_code} : {r.json()}')
+
+payload = {
+    "key": "holiday_mode_enabled",
+    "value": "True"
+}
+r = req.put('http://127.0.0.1:8080/v1/setting', data=json.dumps(payload))
+print(f'{r.url} ({r.request.method}) => {r.status_code} : {r.text}')
+
+r = req.get('http://127.0.0.1:8080/v1/setting/holiday_mode_enabled')
+print(f'{r.url} ({r.request.method}) => {r.status_code} : {r.json()}')
