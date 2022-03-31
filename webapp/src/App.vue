@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
 </script>
 
 <script lang="ts">
@@ -9,84 +7,45 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      info: {}
+      current_temp: '',
+      timestamp: ''
     }
   },
+  created() {
+    setInterval(() => {
+      this.getNow();
+    }, 5000)
+  },
   mounted () {
+    this.getNow()
     axios
-      .get('http://localhost:8080/v1/setting/default_temperature')
-      .then(response => (this.info = response))
+      .get('http://localhost:8080/v1/temperatures')
+      .then(response => (this.current_temp = response["data"]["temperature"]))
+  },
+  methods: {
+    getNow: function() {
+      const today = new Date();
+      const date = today.getDate().toString().padStart(2, '0') + '/' + (today.getMonth() + 1).toString().padStart(2, '0') + '/' + today.getFullYear();
+      const time = today.getHours().toString().padStart(2, '0') + ":" + today.getMinutes().toString().padStart(2, '0');
+      const dateTime = date + ' ' + time;
+      this.timestamp = dateTime;
+    }
   }
 }
+
 </script>
 
 <template>
   <header>
     <div>
-      {{ info["data"] }}
+      Current temperature = {{ current_temp }}
+    </div>
+    <div>
+      Current timestamp = {{ timestamp }}
     </div>
   </header>
 </template>
 
 <style>
-@import './assets/base.css';
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-
-  font-weight: normal;
-}
-
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-}
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
-
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-}
 </style>
