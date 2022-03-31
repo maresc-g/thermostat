@@ -5,16 +5,22 @@ mod setting;
 use warp::{Filter};
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use warp::http::Method;
 use super::db;
 
 type Db = Arc<Mutex<db::DbItf>>;
 
 pub async fn run_http_server() {
     let db = Arc::new(Mutex::new(db::DbItf::new().await));
+    let cors = warp::cors()
+        .allow_origin("http://127.0.0.1:3000")
+        .allow_origin("http://localhost:3000")
+        .allow_method(Method::GET);
 
     let routes = heater_timeslot::create_routes(&db)
         .or(temperature::create_routes(&db))
-        .or(setting::create_routes(&db));
+        .or(setting::create_routes(&db))
+        .with(cors);
 
     warp::serve(routes)
         .run(([127, 0, 0, 1], 8080))
