@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use serde_derive::{Deserialize, Serialize};
 use chrono::{DateTime, NaiveTime, FixedOffset};
 
@@ -20,4 +21,9 @@ pub struct HeaterTimeSlot {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct DeleteHeaterTimeSlot {
     pub pk: i64
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Settings {
+    pub settings: HashMap<String, String>
 }

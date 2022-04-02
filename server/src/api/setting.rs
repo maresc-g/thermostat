@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use warp::{Filter, http};
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -14,8 +15,16 @@ struct Setting {
 }
 
 pub fn create_routes(db: &Db) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
-    get_setting_route(db)
+    get_all_settings_route(db)
+        .or(get_setting_route(db))
         .or(update_setting_route(db))
+}
+
+fn get_all_settings_route(db: &Db) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+    warp::path!("v1" / "setting")
+        .and(warp::get())
+        .and(super::with_db(db.clone()))
+        .and_then(get_all_settings)
 }
 
 fn get_setting_route(db: &Db) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
@@ -31,6 +40,16 @@ fn update_setting_route(db: &Db) -> impl Filter<Extract=impl warp::Reply, Error=
         .and(setting_json_body())
         .and(super::with_db(db.clone()))
         .and_then(update_setting)
+}
+
+async fn get_all_settings(db: Db) -> Result<impl warp::Reply, Infallible> {
+    let mut dbitf = db.lock().await;
+    let t = dbitf.transaction().await;
+    let res = db::setting::get(&t).await;
+    Ok(warp::reply::with_status(
+        format!("{}", serde_json::to_string(&crate::structs::Settings { settings: res} ).unwrap()),
+        http::StatusCode::OK,
+    ))
 }
 
 async fn get_setting(key: String, db: Db) -> Result<impl warp::Reply, Infallible> {
