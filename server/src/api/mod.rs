@@ -15,7 +15,8 @@ pub async fn run_http_server() {
     let cors = warp::cors()
         .allow_origin("http://127.0.0.1:3000")
         .allow_origin("http://localhost:3000")
-        .allow_method(Method::GET);
+        .allow_header("content-type")
+        .allow_methods([Method::GET, Method::POST, Method::PUT]);
 
     let routes = heater_timeslot::create_routes(&db)
         .or(temperature::create_routes(&db))
