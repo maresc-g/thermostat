@@ -11,7 +11,9 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue'
+
+export default defineComponent({
   data () {
     return {
       timestamp: ''
@@ -34,7 +36,7 @@ export default {
       this.timestamp = dateTime
     }
   }
-}
+})
 </script>
 
 <style lang="scss">
