@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use warp::{Filter, http};
 use std::sync::Arc;
 use tokio::sync::Mutex;

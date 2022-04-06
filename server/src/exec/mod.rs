@@ -25,9 +25,9 @@ pub async fn run_main_loop()  {
         if let Some(current_timeslot) = db::heater_timeslot::get_current_timeslot(&t, &now.naive_local().weekday().num_days_from_monday(), &now.time()).await {
             if current_temperature < current_timeslot.target_temperature {
                 // TODO : turn on relay
-                println!("Turning heater on curTemp = {}, targetTemp = {}, date = {}-{}, start = {}-{}, end = {}-{}",
+                println!("Turning heater on curTemp = {}, targetTemp = {}, date = {}-{}, timeslot = {}-[{}-{}]",
                 current_temperature, current_timeslot.target_temperature, now.naive_local().weekday().num_days_from_monday(), now.time(),
-                current_timeslot.start_day, current_timeslot.start_time, current_timeslot.end_day, current_timeslot.end_time);
+                current_timeslot.day, current_timeslot.start_time, current_timeslot.end_time);
             }
         }
         t.commit().await;

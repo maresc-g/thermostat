@@ -23,11 +23,11 @@ pub async fn get_current_timeslot(t: &super::DbTransaction<'_>, day: &u32, time:
 }
 
 pub async fn insert(t: &super::DbTransaction<'_>, ts: &HeaterTimeSlot) {
-    t.query("heater_timeslot/insert", &[&ts.target_temperature, &ts.start_day, &ts.start_time, &ts.end_day, &ts.end_time]).await.unwrap();
+    t.query("heater_timeslot/insert", &[&ts.target_temperature, &ts.day, &ts.start_time, &ts.end_time]).await.unwrap();
 }
 
 pub async fn update(t: &super::DbTransaction<'_>, ts: &HeaterTimeSlot) {
-    t.query("heater_timeslot/update", &[&ts.pk, &ts.target_temperature, &ts.start_day, &ts.start_time, &ts.end_day, &ts.end_time]).await.unwrap();
+    t.query("heater_timeslot/update", &[&ts.pk, &ts.target_temperature, &ts.day, &ts.start_time, &ts.end_time]).await.unwrap();
 }
 
 pub async fn delete(t: &super::DbTransaction<'_>, pk: &i64) {
@@ -38,9 +38,8 @@ fn to_heater_timeslot(row: &Row) -> HeaterTimeSlot {
     HeaterTimeSlot {
         pk: row.get("pk"),
         target_temperature: row.get("target_temperature"),
-        start_day: row.get("start_day"),
+        day: row.get("day"),
         start_time: row.get("start_time"),
-        end_day: row.get("end_day"),
         end_time: row.get("end_time"),
     }
 }
