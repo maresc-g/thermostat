@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <p> Temperature = {{ current_temp }} </p>
-    <TimeSlotDay day="Monday"></TimeSlotDay>
+    <TimeSlotDay />
   </div>
 </template>
 
