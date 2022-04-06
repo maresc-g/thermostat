@@ -12,5 +12,7 @@ CREATE TABLE setting (
 INSERT INTO setting(key, value)
      VALUES ('default_temperature', '18')
           , ('holiday_mode_enabled', 'false')
+          , ('manual_mode_enabled', 'false')
+          , ('manual_mode_temperature', '18')
 ON CONFLICT (key) DO NOTHING
 ;
