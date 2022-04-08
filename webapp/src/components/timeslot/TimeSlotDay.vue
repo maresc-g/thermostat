@@ -1,6 +1,5 @@
 <template>
   <div class="timeslot_day">
-    <p>{{ day }}</p>
     <div class="wrapper">
       <div class="row" v-for="day in days" :key="day.id">
         <div class="time">{{ day.day }}</div>
@@ -13,6 +12,10 @@
           </li>
         </ul>
       </div>
+      <div class="row">
+        <button id="show-modal" @click="showModal = true">Add timeslot</button>
+        <AddTimeSlot v-if="showModal" @addTimeSlot="addTimeSlot" @cancel="showModal = false"/>
+      </div>
     </div>
   </div>
 </template>
@@ -20,10 +23,12 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import axios from 'axios'
+import AddTimeSlot from '@/components/timeslot/AddTimeSlot.vue'
 
 export default defineComponent({
   data () {
     return {
+      showModal: false,
       days: [] as {
         id: number
         day: string
@@ -48,13 +53,21 @@ export default defineComponent({
           this.days[timeslot.day].timeslots.push({ startTime: timeslot.start_time, endTime: timeslot.end_time, temperature: timeslot.target_temperature })
         }
       })
-  }
-  // },
-  // methods: {
-  //   addTimeSlot (event) {
-  //     console.log('Hello ' + event.target)
-  //   }
-  // }
+  },
+  methods: {
+    addTimeSlot (day: string, startHour: string, startMinutes: string, endHour: string, endMinutes: string, temperature: number) {
+      this.showModal = false
+      const start = startHour + ':' + startMinutes + ':00'
+      const end = endHour + ':' + endMinutes + ':00'
+      console.log('Adding timeslot for ' + day + ' from ' + start + ' to ' + end)
+      axios
+        .post('http://localhost:8080/v1/heater_timeslot', { day: 1, target_temperature: temperature, start_time: start, end_time: end })
+        .then(response => {
+          console.log(response)
+        })
+    }
+  },
+  components: { AddTimeSlot }
 })
 </script>
 
@@ -64,5 +77,69 @@ export default defineComponent({
 }
 .row {
   text-align: left;
+}
+
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: table;
+  transition: opacity 0.3s ease;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.modal-container {
+  width: 300px;
+  margin: 0px auto;
+  padding: 20px 30px;
+  background-color: #fff;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  transition: all 0.3s ease;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.modal-header h3 {
+  margin-top: 0;
+  color: #42b983;
+}
+
+.modal-body {
+  margin: 20px 0;
+}
+
+.modal-default-button {
+  float: right;
+}
+
+/*
+ * The following styles are auto-applied to elements with
+ * transition="modal" when their visibility is toggled
+ * by Vue.js.
+ *
+ * You can easily play with the modal transition by editing
+ * these styles.
+ */
+
+.modal-enter {
+  opacity: 0;
+}
+
+.modal-leave-active {
+  opacity: 0;
+}
+
+.modal-enter .modal-container,
+.modal-leave-active .modal-container {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
 }
 </style>
