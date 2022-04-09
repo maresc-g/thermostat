@@ -8,7 +8,7 @@
             <p>
               {{ timeslot.startTime }} to {{ timeslot.endTime }} at {{ timeslot.temperature }}°C
             </p>
-            <button>Remove timeslot</button>
+            <button @click="removeTimeSlot(day.id, timeslot.pk)">Remove timeslot</button>
           </li>
         </ul>
       </div>
@@ -33,6 +33,7 @@ export default defineComponent({
         id: number
         day: string
         timeslots: {
+          pk: number
           startTime: string
           endTime: string
           temperature: number
@@ -50,20 +51,30 @@ export default defineComponent({
       .then(response => {
         console.log(response)
         for (const timeslot of response.data) {
-          this.days[timeslot.day].timeslots.push({ startTime: timeslot.start_time, endTime: timeslot.end_time, temperature: timeslot.target_temperature })
+          this.days[timeslot.day].timeslots.push({ pk: timeslot.pk, startTime: timeslot.start_time, endTime: timeslot.end_time, temperature: timeslot.target_temperature })
         }
       })
   },
   methods: {
     addTimeSlot (day: string, startHour: string, startMinutes: string, endHour: string, endMinutes: string, temperature: number) {
+      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
       this.showModal = false
       const start = startHour + ':' + startMinutes + ':00'
       const end = endHour + ':' + endMinutes + ':00'
       console.log('Adding timeslot for ' + day + ' from ' + start + ' to ' + end)
       axios
-        .post('http://localhost:8080/v1/heater_timeslot', { day: 1, target_temperature: temperature, start_time: start, end_time: end })
+        .post('http://localhost:8080/v1/heater_timeslot', { day: days.indexOf(day), target_temperature: temperature, start_time: start, end_time: end })
         .then(response => {
           console.log(response)
+          this.days[response.data.day].timeslots.push({ pk: response.data.pk, startTime: response.data.start_time, endTime: response.data.end_time, temperature: response.data.target_temperature })
+        })
+    },
+    removeTimeSlot (day: number, pk: number) {
+      axios
+        .delete('http://localhost:8080/v1/heater_timeslot/' + pk)
+        .then(response => {
+          console.log(response)
+          this.days[day].timeslots = this.days[day].timeslots.filter(timeslot => timeslot.pk !== pk)
         })
     }
   },
