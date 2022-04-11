@@ -6,12 +6,16 @@ use warp::{Filter};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use warp::http::Method;
+use crate::hal::relay::RelayManager;
 use super::db;
 
 type Db = Arc<Mutex<db::DbItf>>;
+type Relay = Arc<Mutex<RelayManager>>;
 
 pub async fn run_http_server() {
     let db = Arc::new(Mutex::new(db::DbItf::new().await));
+    let relay = Arc::new(Mutex::new(RelayManager::new()));
+
     let cors = warp::cors()
         .allow_origin("http://127.0.0.1:3000")
         .allow_origin("http://localhost:3000")
@@ -20,7 +24,7 @@ pub async fn run_http_server() {
 
     let routes = heater_timeslot::create_routes(&db)
         .or(temperature::create_routes(&db))
-        .or(setting::create_routes(&db))
+        .or(setting::create_routes(&db, &relay))
         .with(cors);
 
     warp::serve(routes)
@@ -30,4 +34,8 @@ pub async fn run_http_server() {
 
 fn with_db(db: Db) -> impl Filter<Extract = (Db,), Error = std::convert::Infallible> + Clone {
     warp::any().map(move || db.clone())
+}
+
+fn with_relay(relay: Relay) -> impl Filter<Extract = (Relay,), Error = std::convert::Infallible> + Clone {
+    warp::any().map(move || relay.clone())
 }

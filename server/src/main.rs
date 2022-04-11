@@ -2,6 +2,7 @@ mod api;
 mod exec;
 mod db;
 mod structs;
+mod hal;
 
 #[tokio::main]
 async fn main() {
