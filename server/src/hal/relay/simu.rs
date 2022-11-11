@@ -10,6 +10,10 @@ impl Simu {
 }
 
 impl Relay for Simu {
-    fn activate(&mut self) {}
-    fn deactivate(&mut self) {}
+    fn activate(&mut self) {
+        println!("Activating simu relay");
+    }
+    fn deactivate(&mut self) {
+        println!("Deactivating simu relay");
+    }
 }

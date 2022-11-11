@@ -5,6 +5,7 @@
       <ul>
         <li><router-link to="/">Home</router-link></li>
         <li><router-link to="/settings">Settings</router-link></li>
+        <li><button @click="switchRelay">Switch relay</button></li>
       </ul>
     </nav>
   </header>
@@ -12,6 +13,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import axios from 'axios'
 
 export default defineComponent({
   data () {
@@ -34,6 +36,13 @@ export default defineComponent({
       const time = today.getHours().toString().padStart(2, '0') + ':' + today.getMinutes().toString().padStart(2, '0')
       const dateTime = date + ' ' + time
       this.timestamp = dateTime
+    },
+    switchRelay () {
+      axios
+        .post('http://thermostat:8080/v1/relay/')
+        .then(response => {
+          console.log(response)
+        })
     }
   }
 })

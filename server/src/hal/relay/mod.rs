@@ -40,6 +40,7 @@ impl RelayManager {
     }
 
     pub fn switch(&mut self) {
+        println!("Switching relay state, was {}, now {}", self.active, !self.active);
         if self.active {
             self.deactivate();
         }
