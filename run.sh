@@ -1,0 +1,1 @@
+docker run -it gcc8-rpi-zero bash

@@ -1,0 +1,1 @@
+docker build -f Dockerfile --network=host -t gcc8-rpi-zero .
