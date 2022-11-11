@@ -47,7 +47,7 @@ export default defineComponent({
       this.days.push({ id: i, day: days[i], timeslots: [] })
     }
     axios
-      .get('http://localhost:8080/v1/heater_timeslot')
+      .get('http://thermostat:8080/v1/heater_timeslot')
       .then(response => {
         console.log(response)
         for (const timeslot of response.data) {
@@ -63,7 +63,7 @@ export default defineComponent({
       const end = endHour + ':' + endMinutes + ':00'
       console.log('Adding timeslot for ' + day + ' from ' + start + ' to ' + end)
       axios
-        .post('http://localhost:8080/v1/heater_timeslot', { day: days.indexOf(day), target_temperature: temperature, start_time: start, end_time: end })
+        .post('http://thermostat:8080/v1/heater_timeslot', { day: days.indexOf(day), target_temperature: temperature, start_time: start, end_time: end })
         .then(response => {
           console.log(response)
           this.days[response.data.day].timeslots.push({ pk: response.data.pk, startTime: response.data.start_time, endTime: response.data.end_time, temperature: response.data.target_temperature })
@@ -71,7 +71,7 @@ export default defineComponent({
     },
     removeTimeSlot (day: number, pk: number) {
       axios
-        .delete('http://localhost:8080/v1/heater_timeslot/' + pk)
+        .delete('http://thermostat:8080/v1/heater_timeslot/' + pk)
         .then(response => {
           console.log(response)
           this.days[day].timeslots = this.days[day].timeslots.filter(timeslot => timeslot.pk !== pk)

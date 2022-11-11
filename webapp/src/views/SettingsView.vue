@@ -28,7 +28,7 @@ export default defineComponent({
   methods: {
     getSettings: function () {
       axios
-        .get('http://localhost:8080/v1/setting')
+        .get('http://thermostat:8080/v1/setting')
         .then(response => {
           const settings = response.data.settings
           this.default_temperature = settings.default_temperature
@@ -38,7 +38,7 @@ export default defineComponent({
     onInput () {
       console.log(this.input_holiday_mode_enabled)
       axios
-        .put('http://localhost:8080/v1/setting', { key: 'holiday_mode_enabled', value: this.input_holiday_mode_enabled.toString() })
+        .put('http://thermostat:8080/v1/setting', { key: 'holiday_mode_enabled', value: this.input_holiday_mode_enabled.toString() })
         .then(response => {
           console.log(response)
         })

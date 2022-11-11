@@ -28,7 +28,7 @@ export default defineComponent({
   methods: {
     updateTemp: function () {
       axios
-        .get('http://localhost:8080/v1/temperatures')
+        .get('http://thermostat:8080/v1/temperatures')
         .then(response => (this.current_temp = response.data.temperature))
     }
   },
