@@ -5,7 +5,12 @@
       <ul>
         <li><router-link to="/">Home</router-link></li>
         <li><router-link to="/settings">Settings</router-link></li>
-        <li><button @click="switchRelay">Switch relay</button></li>
+        <li>
+          <button @click="switchManualState">
+            <span v-if="manualState">Stop heating</span>
+            <span v-else>Start heating</span>
+          </button>
+        </li>
       </ul>
     </nav>
   </header>
@@ -18,18 +23,27 @@ import axios from 'axios'
 export default defineComponent({
   data () {
     return {
-      timestamp: ''
+      timestamp: '',
+      manualState: false
     }
   },
   created () {
     setInterval(() => {
-      this.getNow()
+      this.setup()
     }, 5000)
   },
   mounted () {
-    this.getNow()
+    this.setup()
   },
   methods: {
+    setup: function() {
+      this.getNow()
+      axios
+        .get('http://localhost:8080/v1/setting/manual_mode_enabled')
+        .then(response => {
+          this.manualState = response.data.value === 'true'
+        })
+    },
     getNow: function () {
       const today = new Date()
       const date = today.getDate().toString().padStart(2, '0') + '/' + (today.getMonth() + 1).toString().padStart(2, '0') + '/' + today.getFullYear()
@@ -37,11 +51,12 @@ export default defineComponent({
       const dateTime = date + ' ' + time
       this.timestamp = dateTime
     },
-    switchRelay () {
+    switchManualState () {
       axios
-        .post('http://thermostat:8080/v1/relay/')
+        .post('http://localhost:8080/v1/manual/' + (!this.manualState ? 'true' : 'false'))
         .then(response => {
           console.log(response)
+          this.manualState = response.data.value === 'true'
         })
     }
   }

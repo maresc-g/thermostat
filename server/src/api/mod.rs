@@ -14,7 +14,6 @@ type Relay = Arc<Mutex<RelayManager>>;
 
 pub async fn run_http_server() {
     let db = Arc::new(Mutex::new(db::DbItf::new().await));
-    let relay = Arc::new(Mutex::new(RelayManager::new()));
 
     let cors = warp::cors()
         .allow_origin("http://127.0.0.1:5173")
@@ -25,7 +24,7 @@ pub async fn run_http_server() {
 
     let routes = heater_timeslot::create_routes(&db)
         .or(temperature::create_routes(&db))
-        .or(setting::create_routes(&db, &relay))
+        .or(setting::create_routes(&db))
         .with(cors).with(warp::log("REQUEST"));
 
     warp::serve(routes)

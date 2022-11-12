@@ -5,10 +5,8 @@ use std::convert::Infallible;
 use serde_derive::{Deserialize, Serialize};
 use crate::api::with_relay;
 use super::db;
-use crate::hal::relay::RelayManager;
 
 type Db = Arc<Mutex<db::DbItf>>;
-type Relay = Arc<Mutex<RelayManager>>;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Setting {
@@ -16,11 +14,11 @@ struct Setting {
     value: String
 }
 
-pub fn create_routes(db: &Db, relay: &Relay) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+pub fn create_routes(db: &Db) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
     get_all_settings_route(db)
         .or(get_setting_route(db))
         .or(update_setting_route(db))
-        .or(switch_relay_route(relay))
+        .or(change_manual_state_route(db))
 }
 
 fn get_all_settings_route(db: &Db) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
@@ -45,11 +43,11 @@ fn update_setting_route(db: &Db) -> impl Filter<Extract=impl warp::Reply, Error=
         .and_then(update_setting)
 }
 
-fn switch_relay_route(relay: &Relay) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
-    warp::path!("v1" / "relay")
+fn change_manual_state_route(db: &Db) -> impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone {
+    warp::path!("v1" / "manual" / bool)
         .and(warp::post())
-        .and(with_relay(relay.clone()))
-        .and_then(switch_relay)
+        .and(super::with_db(db.clone()))
+        .and_then(change_manual_state)
 }
 
 async fn get_all_settings(db: Db) -> Result<impl warp::Reply, Infallible> {
@@ -78,18 +76,17 @@ async fn update_setting(setting: Setting, db: Db) -> Result<impl warp::Reply, In
     db::setting::update_by_key(&t, &setting.key, &setting.value).await;
     t.commit().await;
     Ok(warp::reply::with_status(
-        "Ok",
+        format!("{}", serde_json::to_string(&setting).unwrap()),
         http::StatusCode::OK,
     ))
 }
 
-async fn switch_relay(relay: Relay) -> Result<impl warp::Reply, Infallible> {
-    let mut r = relay.lock().await;
-    r.switch();
-    Ok(warp::reply::with_status(
-        "Ok",
-        http::StatusCode::OK,
-    ))
+async fn change_manual_state(active: bool, db: Db) -> Result<impl warp::Reply, Infallible> {
+    if active {
+        return update_setting(Setting { key:"manual_mode_enabled".to_string(), value:"true".to_string() }, db).await;
+    } else {
+        return update_setting(Setting { key:"manual_mode_enabled".to_string(), value:"false".to_string() }, db).await;
+    }
 }
 
 fn setting_json_body() -> impl Filter<Extract = (Setting,), Error = warp::Rejection> + Clone {
