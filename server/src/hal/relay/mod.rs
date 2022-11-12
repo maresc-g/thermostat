@@ -1,5 +1,5 @@
-mod simu;
 mod omron;
+mod simu;
 
 pub trait Relay {
     fn activate(&mut self);
@@ -8,23 +8,28 @@ pub trait Relay {
 
 pub struct RelayManager {
     active: bool,
-    relay: Box<dyn Relay>
+    relay: Box<dyn Relay>,
 }
 
 impl RelayManager {
-    pub fn new() -> RelayManager {
-        let mut relay_manager = if cfg!(arm) {
-            RelayManager {
-                active: false,
-                relay: Box::new(omron::Omron::new())
-            }
+    #[cfg(target_arch = "arm")]
+    fn new_relay_manager() -> RelayManager {
+        RelayManager {
+            active: false,
+            relay: Box::new(omron::Omron::new()),
         }
-        else {
-            RelayManager {
-                active: false,
-                relay: Box::new(simu::Simu::new())
-            }
-        };
+    }
+
+    #[cfg(not(target_arch = "arm"))]
+    fn new_relay_manager() -> RelayManager {
+        RelayManager {
+            active: false,
+            relay: Box::new(simu::Simu::new()),
+        }
+    }
+
+    pub fn new() -> RelayManager {
+        let mut relay_manager = Self::new_relay_manager();
         relay_manager.deactivate();
         relay_manager
     }
@@ -40,11 +45,13 @@ impl RelayManager {
     }
 
     pub fn switch(&mut self) {
-        println!("Switching relay state, was {}, now {}", self.active, !self.active);
+        println!(
+            "Switching relay state, was {}, now {}",
+            self.active, !self.active
+        );
         if self.active {
             self.deactivate();
-        }
-        else {
+        } else {
             self.activate();
         }
     }
