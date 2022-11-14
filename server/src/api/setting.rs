@@ -3,7 +3,6 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use std::convert::Infallible;
 use serde_derive::{Deserialize, Serialize};
-use crate::api::with_relay;
 use super::db;
 
 type Db = Arc<Mutex<db::DbItf>>;

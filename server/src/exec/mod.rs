@@ -38,8 +38,8 @@ pub async fn run_main_loop()  {
             }
         }
         if !should_heat {
-            let value = db::setting::get_by_key(&t, &"manual_mode_enabled").await;
-            if value == "true" && !heater_running {
+            let value = db::setting::get_bool_by_key(&t, &"manual_mode_enabled").await;
+            if value && !heater_running {
                 println!("Manual start asked");
                 should_heat = true;
             }
