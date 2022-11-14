@@ -30,7 +30,7 @@
                       </select>
 
                       <label for="temperature-input" class="label-temperature">Temperature :</label>
-                      <input type="number" id="temperature-input" class="temperature-input" v-model="temperature_selected">
+                      <Slider v-model="temperature_selected" :min=160 :max=260 :step=5 class="temperature-input" :format="format" tooltipPosition="bottom"/>
 
                     </div>
                     <div class="modal-footer">
@@ -49,9 +49,11 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import Slider from '@vueform/slider'
 
 export default defineComponent({
   emits: ['addTimeSlot', 'cancel'],
+  components: { Slider },
   data () {
     return {
       days: [
@@ -70,19 +72,24 @@ export default defineComponent({
       start_minute_selected: '',
       end_hour_selected: '',
       end_minute_selected: '',
-      temperature_selected: 20
+      temperature_selected: 200.0,
+      format: function (temperature_selected: number) {
+        return temperature_selected/10
+      }
     }
   },
   created () {
     for (let i = 0; i < 24; i++) {
       this.hours.push({ id: i, value: i.toString().padStart(2, '0') })
     }
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 60; i += 5) {
       this.minutes.push({ id: i, value: i.toString().padStart(2, '0') })
     }
   }
 })
 </script>
+
+<style src="@vueform/slider/themes/default.css"></style>
 
 <style lang="scss">
 .modal-mask {
@@ -185,7 +192,7 @@ export default defineComponent({
   grid-column: 3 / 3;
   grid-row: 3 / 3;
 }
-.label-temperature{
+.label-temperature {
   grid-column: 1 / 1;
   grid-row: 4 / 4;
 }
