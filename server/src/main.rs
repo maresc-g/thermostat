@@ -16,6 +16,16 @@ use i2cdev::linux::{LinuxI2CDevice, LinuxI2CError};
 const ADA_SLAVE_ADDR: u16 = 0x18;
 const ADA_REG_TEMP: u8 = 0x5;
 
+fn convert(buf: &[u8;2]) -> f64 {
+    let mut tmp = buf.clone();
+    tmp[0] = tmp[0] & 0x1F;
+    if tmp[0] & 0x10 == 0x10 {
+        tmp[0] = tmp[0] & 0x0F;
+        return (tmp[0] as f64 * 16.0 + tmp[1] as f64 / 16.0) - 256.0;
+    }
+    return tmp[0] as f64 * 16.0 + tmp[1] as f64 / 16.0;
+}
+
 #[tokio::main]
 async fn main() {
     env_logger::init();
@@ -28,7 +38,8 @@ async fn main() {
         let mut buf: [u8; 2] = [0; 2];
         dev.smbus_write_byte(ADA_REG_TEMP).unwrap();
         dev.read(&mut buf).unwrap();
-        println!("Reading: {:?}", buf);
+
+        println!("Reading: {:?}", convert(&buf));
         thread::sleep(Duration::from_millis(200));
     }
 
