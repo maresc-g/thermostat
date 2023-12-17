@@ -3,12 +3,15 @@ use chrono::{Datelike, Local};
 use tokio::time::{Duration};
 use crate::db::temperature;
 use crate::hal::relay::RelayManager;
+use crate::hal::thermometer::ThermometerManager;
+
 use super::db;
 
 const TEMPERATURE_CHECK_DT: u128 = 5000;
 
 pub async fn run_main_loop()  {
     let mut relay = RelayManager::new();
+    let mut thermometer = ThermometerManager::new();
     let mut last_temp_check = time::UNIX_EPOCH;
     let mut interval = tokio::time::interval(Duration::from_secs(1));
     let mut now;
@@ -20,7 +23,8 @@ pub async fn run_main_loop()  {
     loop {
         let t = db.transaction().await;
         now = Local::now();
-        current_temperature = 20_f64; // TODO : read from sensor
+        current_temperature = thermometer.get_temperature();
+        println!("Temp = {:?}", current_temperature);
         if last_temp_check.elapsed().unwrap().as_millis() > TEMPERATURE_CHECK_DT {
             temperature::insert(&t, current_temperature).await;
             last_temp_check = time::SystemTime::now();
