@@ -24,6 +24,10 @@ pub async fn get_bool_by_key(t: &super::DbTransaction<'_>, key: &str) -> bool {
     FromStr::from_str(t.query("setting/select_by_key", &[&key]).await.unwrap()[0].get("value")).unwrap()
 }
 
+pub async fn get_float_by_key(t: &super::DbTransaction<'_>, key: &str) -> f64 {
+    FromStr::from_str(t.query("setting/select_by_key", &[&key]).await.unwrap()[0].get("value")).unwrap()
+}
+
 pub async fn update_by_key(t: &super::DbTransaction<'_>, key: &str, value: &str) {
     t.query("setting/update_by_key", &[&key, &value]).await.unwrap();
 }
