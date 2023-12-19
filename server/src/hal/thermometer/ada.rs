@@ -36,7 +36,6 @@ impl Thermometer for Ada {
         self.device.read(&mut buf).unwrap();
 
         let temperature = self.convert(&buf);
-        println!("Reading: {:?}", temperature);
         temperature
     }
 }
