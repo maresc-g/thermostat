@@ -14,9 +14,7 @@ pub async fn run_http_server() {
     let db = Arc::new(Mutex::new(db::DbItf::new().await));
 
     let cors = warp::cors()
-        .allow_origin("http://127.0.0.1:5173")
-        .allow_origin("http://localhost:5173")
-        .allow_any_origin()
+        .allow_origins(["http://localhost:5173", "http://127.0.0.1:5173"])
         .allow_header("content-type")
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE]);
 
@@ -26,7 +24,7 @@ pub async fn run_http_server() {
         .with(cors).with(warp::log("REQUEST"));
 
     warp::serve(routes)
-        .run(([127, 0, 0, 1], 8080))
+        .run(([0, 0, 0, 0], 8080))
         .await;
 }
 
