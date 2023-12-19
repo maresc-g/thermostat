@@ -22,6 +22,7 @@ pub async fn run_main_loop()  {
     let mut now;
     let mut db = db::DbItf::new().await;
     let mut current_temperature;
+    let mut target_temperature: f64;
     let mut heater_running = false;
     let mut last_should_heat;
     {
@@ -30,6 +31,7 @@ pub async fn run_main_loop()  {
     }
     interval.tick().await;
     loop {
+        target_temperature = 0_f64;
         let t = db.transaction().await;
         let hysteresis = db::setting::get_float_by_key(&t, &"hysteresis").await;
         now = Local::now();
@@ -44,6 +46,7 @@ pub async fn run_main_loop()  {
         if let Some(current_timeslot) = db::heater_timeslot::get_current_timeslot(&t, &now.naive_local().weekday().num_days_from_monday(), &now.time()).await {
             if in_range_for_heating(last_should_heat, current_temperature, current_timeslot.target_temperature, hysteresis) {
                 should_heat = true;
+                target_temperature = current_timeslot.target_temperature;
                 if !last_should_heat {
                     println!("Turning heater on curTemp = {}, targetTemp = {}, hysteresis = {}, date = {}-{}, timeslot = {}-[{}-{}]",
                     current_temperature, current_timeslot.target_temperature, hysteresis, now.naive_local().weekday().num_days_from_monday(), now.time(),
@@ -57,6 +60,7 @@ pub async fn run_main_loop()  {
             if value && in_range_for_heating(last_should_heat, current_temperature, manual_temp, hysteresis) {
                 println!("Manual start asked, curTemp = {}, targetTemp = {}, hysteresis = {}", current_temperature, manual_temp, hysteresis);
                 should_heat = true;
+                target_temperature = manual_temp;
             }
         }
 
@@ -70,6 +74,8 @@ pub async fn run_main_loop()  {
             relay.deactivate();
         }
         db::setting::update_by_key(&t, &"is_heating", &should_heat.to_string()).await;
+        db::setting::update_by_key(&t, &"current_temperature", &current_temperature.to_string()).await;
+        db::setting::update_by_key(&t, &"target_temperature", &target_temperature.to_string()).await;
         last_should_heat = should_heat;
         t.commit().await;
         interval.tick().await;

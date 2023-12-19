@@ -1,6 +1,7 @@
 mod heater_timeslot;
 mod temperature;
 mod setting;
+mod status;
 
 use warp::{Filter};
 use std::sync::Arc;
@@ -21,6 +22,7 @@ pub async fn run_http_server() {
     let routes = heater_timeslot::create_routes(&db)
         .or(temperature::create_routes(&db))
         .or(setting::create_routes(&db))
+        .or(status::create_routes(&db))
         .with(cors).with(warp::log("REQUEST"));
 
     warp::serve(routes)

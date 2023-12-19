@@ -16,5 +16,7 @@ INSERT INTO setting(key, value)
           , ('manual_mode_temperature', '18')
           , ('is_heating', 'false')
           , ('hysteresis', '0.5')
+          , ('current_temperature', '0.0')
+          , ('target_temperature', '0.0')
 ON CONFLICT (key) DO NOTHING
 ;

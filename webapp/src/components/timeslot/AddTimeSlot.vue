@@ -30,7 +30,7 @@
                       </select>
 
                       <label for="temperature-input" class="label-temperature">Temperature :</label>
-                      <Slider v-model="temperature_selected" :min=160 :max=260 :step=5 class="temperature-input" :format="format" tooltipPosition="bottom"/>
+                      <Slider v-model="temperature_selected" :min=14 :max=26 :step=0.5 class="temperature-input" :format="format" tooltipPosition="bottom"/>
 
                     </div>
                     <div class="modal-footer">
@@ -72,9 +72,9 @@ export default defineComponent({
       start_minute_selected: '',
       end_hour_selected: '',
       end_minute_selected: '',
-      temperature_selected: 200.0,
+      temperature_selected: 18.0,
       format: function (temperature_selected: number) {
-        return temperature_selected/10
+        return temperature_selected
       }
     }
   },

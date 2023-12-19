@@ -1,6 +1,8 @@
 <template>
   <header>
     <p> {{ timestamp }}</p>
+    <p> {{ isHeating }}</p>
+    <p> Target = {{ target_temperature }}</p>
     <nav>
       <ul>
         <li><router-link to="/">Home</router-link></li>
@@ -24,7 +26,6 @@ export default defineComponent({
   data () {
     return {
       timestamp: '',
-      manualState: false
     }
   },
   created () {
@@ -38,11 +39,6 @@ export default defineComponent({
   methods: {
     setup: function() {
       this.getNow()
-      axios
-        .get('http://localhost:8080/v1/setting/manual_mode_enabled')
-        .then(response => {
-          this.manualState = response.data.value === 'true'
-        })
     },
     getNow: function () {
       const today = new Date()
@@ -58,6 +54,22 @@ export default defineComponent({
           console.log(response)
           this.manualState = response.data.value === 'true'
         })
+    }
+  },
+  computed: {
+    manualState(): Boolean {
+      return this.$store.state.manual_mode_enabled
+    },
+    isHeating(): String {
+      if (this.$store.state.is_heating) {
+        return "HEATING ON"
+      }
+      else {
+        return "HEATING OFF"
+      }
+    },
+    target_temperature(): Number {
+      return this.$store.state.target_temperature
     }
   }
 })

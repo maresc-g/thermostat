@@ -5,12 +5,30 @@
 
 <script>
 import AppHeader from '@/components/AppHeader.vue'
+import axios from 'axios'
+import store from '@/store'
 
 export default {
+  created () {
+    setInterval(() => {
+      this.updateTemp()
+    }, 5000)
+  },
+  mounted () {
+    this.updateTemp()
+  },
+  methods: {
+    updateTemp: function () {
+      axios
+      .get('http://localhost:8080/v1/status')
+      .then(response => (store.commit('update', response.data)))
+    }
+  },
   components: {
     AppHeader
   }
 }
+
 </script>
 
 <style lang="scss">

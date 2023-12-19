@@ -30,7 +30,7 @@ fn get_temperature_history_route(db: &Db) -> impl Filter<Extract=impl warp::Repl
 async fn get_current_temperature(db: Db) -> Result<impl warp::Reply, Infallible> {
     let mut dbitf = db.lock().await;
     let t = dbitf.transaction().await;
-    let res = db::temperature::get_last(&t).await;
+    let res = db::setting::get_float_by_key(&t, &"current_temperature").await;
     Ok(warp::reply::with_status(
         format!("{}", serde_json::to_string(&res).unwrap()),
         http::StatusCode::OK,
