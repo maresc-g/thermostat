@@ -43,24 +43,26 @@ pub async fn run_main_loop()  {
         }
 
         let mut should_heat = false;
-        if let Some(current_timeslot) = db::heater_timeslot::get_current_timeslot(&t, &now.naive_local().weekday().num_days_from_monday(), &now.time()).await {
-            if in_range_for_heating(last_should_heat, current_temperature, current_timeslot.target_temperature, hysteresis) {
-                should_heat = true;
-                target_temperature = current_timeslot.target_temperature;
-                if !last_should_heat {
-                    println!("Turning heater on curTemp = {}, targetTemp = {}, hysteresis = {}, date = {}-{}, timeslot = {}-[{}-{}]",
-                    current_temperature, current_timeslot.target_temperature, hysteresis, now.naive_local().weekday().num_days_from_monday(), now.time(),
-                    current_timeslot.day, current_timeslot.start_time, current_timeslot.end_time);
-                }
-            }
+        let manual_temp: f64 = db::setting::get_float_by_key(&t, &"manual_mode_temperature").await;
+        let manual_mode_enabled = db::setting::get_bool_by_key(&t, &"manual_mode_enabled").await;
+
+        if manual_mode_enabled && in_range_for_heating(last_should_heat, current_temperature, manual_temp, hysteresis) {
+            println!("Manual start asked, curTemp = {}, targetTemp = {}, hysteresis = {}", current_temperature, manual_temp, hysteresis);
+            should_heat = true;
+            target_temperature = manual_temp;
         }
-        if !should_heat {
-            let manual_temp: f64 = db::setting::get_float_by_key(&t, &"manual_mode_temperature").await;
-            let value = db::setting::get_bool_by_key(&t, &"manual_mode_enabled").await;
-            if value && in_range_for_heating(last_should_heat, current_temperature, manual_temp, hysteresis) {
-                println!("Manual start asked, curTemp = {}, targetTemp = {}, hysteresis = {}", current_temperature, manual_temp, hysteresis);
-                should_heat = true;
-                target_temperature = manual_temp;
+
+        if !manual_mode_enabled {
+            if let Some(current_timeslot) = db::heater_timeslot::get_current_timeslot(&t, &now.naive_local().weekday().num_days_from_monday(), &now.time()).await {
+                if in_range_for_heating(last_should_heat, current_temperature, current_timeslot.target_temperature, hysteresis) {
+                    should_heat = true;
+                    target_temperature = current_timeslot.target_temperature;
+                    if !last_should_heat {
+                        println!("Turning heater on curTemp = {}, targetTemp = {}, hysteresis = {}, date = {}-{}, timeslot = {}-[{}-{}]",
+                        current_temperature, current_timeslot.target_temperature, hysteresis, now.naive_local().weekday().num_days_from_monday(), now.time(),
+                        current_timeslot.day, current_timeslot.start_time, current_timeslot.end_time);
+                    }
+                }
             }
         }
 
