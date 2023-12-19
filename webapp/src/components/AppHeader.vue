@@ -9,8 +9,8 @@
         <li><router-link to="/settings">Settings</router-link></li>
         <li>
           <button @click="switchManualState">
-            <span v-if="manualState">Stop heating</span>
-            <span v-else>Start heating</span>
+            <span v-if="manualState">Stop manual mode</span>
+            <span v-else>Start manual mode</span>
           </button>
         </li>
       </ul>
