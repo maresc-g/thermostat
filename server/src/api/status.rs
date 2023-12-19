@@ -35,8 +35,6 @@ async fn get_status(db: Db) -> Result<impl warp::Reply, Infallible> {
     let mut dbitf = db.lock().await;
     let t = dbitf.transaction().await;
     let res = db::setting::get(&t).await;
-    let a: f64 = FromStr::from_str(&res["default_temperature"]).unwrap();
-    println!("{:?}", a);
     let status = Status {
         default_temperature: FromStr::from_str(&res["default_temperature"]).unwrap(),
         holiday_mode_enabled: FromStr::from_str(&res["holiday_mode_enabled"]).unwrap(),
