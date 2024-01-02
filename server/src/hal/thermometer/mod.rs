@@ -10,14 +10,14 @@ pub struct ThermometerManager {
 }
 
 impl ThermometerManager {
-    #[cfg(target_arch = "arm")]
+    #[cfg(target_arch = "aarch64")]
     fn new_thermometer_manager() -> ThermometerManager {
         ThermometerManager {
             thermometer: Box::new(ada::Ada::new()),
         }
     }
 
-    #[cfg(not(target_arch = "arm"))]
+    #[cfg(not(target_arch = "aarch64"))]
     fn new_thermometer_manager() -> ThermometerManager {
         ThermometerManager {
             thermometer: Box::new(simu::Simu::new()),

@@ -111,7 +111,7 @@ export default defineComponent({
 
 .modal-container {
   width: 800px;
-  height: 200px;
+  height: 350px;
   margin: 0px auto;
   padding: 20px 30px;
   background-color: #fff;
@@ -131,6 +131,8 @@ export default defineComponent({
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
+  row-gap: 1em;
+  column-gap: 1em;
 }
 
 .modal-default-button {

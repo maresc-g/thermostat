@@ -1,85 +1,22 @@
 <template>
   <header>
-    <p> {{ timestamp }}</p>
-    <p> {{ isHeating }}</p>
-    <p> Target = {{ target_temperature }}</p>
     <nav>
       <ul>
         <li><router-link to="/">Home</router-link></li>
+        <li><router-link to="/timeslots">Timeslots</router-link></li>
         <li><router-link to="/settings">Settings</router-link></li>
-        <li>
-          <button @click="switchManualState">
-            <span v-if="manualState">Stop manual mode</span>
-            <span v-else>Start manual mode</span>
-          </button>
-        </li>
       </ul>
     </nav>
   </header>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import axios from 'axios'
-
-export default defineComponent({
-  data () {
-    return {
-      timestamp: '',
-    }
-  },
-  created () {
-    setInterval(() => {
-      this.setup()
-    }, 5000)
-  },
-  mounted () {
-    this.setup()
-  },
-  methods: {
-    setup: function() {
-      this.getNow()
-    },
-    getNow: function () {
-      const today = new Date()
-      const date = today.getDate().toString().padStart(2, '0') + '/' + (today.getMonth() + 1).toString().padStart(2, '0') + '/' + today.getFullYear()
-      const time = today.getHours().toString().padStart(2, '0') + ':' + today.getMinutes().toString().padStart(2, '0')
-      const dateTime = date + ' ' + time
-      this.timestamp = dateTime
-    },
-    switchManualState () {
-      axios
-        .post('http://localhost:8080/v1/manual/' + (!this.manualState ? 'true' : 'false'))
-        .then(response => {
-          console.log(response)
-          this.manualState = response.data.value === 'true'
-        })
-    }
-  },
-  computed: {
-    manualState(): Boolean {
-      return this.$store.state.manual_mode_enabled
-    },
-    isHeating(): String {
-      if (this.$store.state.is_heating) {
-        return "HEATING ON"
-      }
-      else {
-        return "HEATING OFF"
-      }
-    },
-    target_temperature(): Number {
-      return this.$store.state.target_temperature
-    }
-  }
-})
 </script>
 
 <style lang="scss">
   header {
     display: flex;
     border-bottom: 1px solid #ccc;
-    padding: .5rem 1rem;
 
     p {
       margin-left: 1rem;
@@ -87,7 +24,8 @@ export default defineComponent({
   }
 
   nav {
-    margin-left: auto;
+    margin-left: 0;
+    padding: 0;
 
     ul {
       list-style: none;
@@ -95,7 +33,7 @@ export default defineComponent({
 
     ul li {
       display: inline-flex;
-      margin-left: 1rem;
+      margin-right: 1rem;
     }
   }
 </style>

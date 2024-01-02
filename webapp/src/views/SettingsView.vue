@@ -12,7 +12,7 @@
       :max="30"
       :step="0.5"
       @change="update_manual_temperature"
-    />
+      />
     </div>
   </div>
 </template>
@@ -37,18 +37,18 @@ export default defineComponent({
     onInput () {
       console.log(this.input_holiday_mode_enabled)
       axios
-        .put('http://localhost:8080/v1/setting', { key: 'holiday_mode_enabled', value: this.input_holiday_mode_enabled.toString() })
-        .then(response => {
-          console.log(response)
-        })
+      .put('http://localhost:8080/v1/setting', { key: 'holiday_mode_enabled', value: this.input_holiday_mode_enabled.toString() })
+      .then(response => {
+        console.log(response)
+      })
     },
     update_manual_temperature: function(value: number) {
       axios
-        .put('http://localhost:8080/v1/setting', { key: 'manual_mode_temperature', value: value.toString() })
-        .then(response => {
-          this.$store.commit('update_manual_temperature', value)
-          console.log(response)
-        })
+      .put('http://localhost:8080/v1/setting', { key: 'manual_mode_temperature', value: value.toString() })
+      .then(response => {
+        this.$store.commit('update_manual_temperature', value)
+        console.log(response)
+      })
     }
   },
   computed: {

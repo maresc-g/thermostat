@@ -12,7 +12,7 @@ pub struct RelayManager {
 }
 
 impl RelayManager {
-    #[cfg(target_arch = "arm")]
+    #[cfg(target_arch = "aarch64")]
     fn new_relay_manager() -> RelayManager {
         RelayManager {
             active: false,
@@ -20,7 +20,7 @@ impl RelayManager {
         }
     }
 
-    #[cfg(not(target_arch = "arm"))]
+    #[cfg(not(target_arch = "aarch64"))]
     fn new_relay_manager() -> RelayManager {
         RelayManager {
             active: false,

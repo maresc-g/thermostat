@@ -1,25 +1,121 @@
 <template>
   <div class="home">
-    <p> Temperature = {{ current_temp }} </p>
-      <TimeSlotDay />
+    <div class="timestamp"> {{ timestamp }}</div>
+    <div class="current_temp"> Current Temperature = {{ current_temp }} </div>
+    <div class="is_heating"> {{ isHeating }}</div>
+    <div class="target_temp"> Target = {{ target_temperature }} (+ {{ hysteresis }})°C</div>
+    <div class="switch_state">
+      <button @click="switchManualState">
+        <span v-if="manualState">Stop manual mode</span>
+        <span v-else>Start manual mode</span>
+      </button>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import TimeSlotDay from '@/components/timeslot/TimeSlotDay.vue'
+import axios from 'axios'
 
 export default defineComponent({
   name: 'HomeView',
   data () {
     return {
+      timestamp: '',
+    }
+  },
+  created () {
+    setInterval(() => {
+      this.setup()
+    }, 5000)
+  },
+  mounted () {
+    this.setup()
+  },
+  methods: {
+    switchManualState () {
+      axios
+      .post('http://localhost:8080/v1/manual/' + (!this.manualState ? 'true' : 'false'))
+      .then(response => {
+        console.log(response)
+        this.manualState = response.data.value === 'true'
+      })
+    },
+    setup: function() {
+      this.getNow()
+    },
+    getNow: function () {
+      const today = new Date()
+      const date = today.getDate().toString().padStart(2, '0') + '/' + (today.getMonth() + 1).toString().padStart(2, '0') + '/' + today.getFullYear()
+      const time = today.getHours().toString().padStart(2, '0') + ':' + today.getMinutes().toString().padStart(2, '0')
+      const dateTime = date + ' ' + time
+      this.timestamp = dateTime
     }
   },
   computed: {
     current_temp(): String {
       return this.$store.state.current_temperature
+    },
+    manualState(): Boolean {
+      return this.$store.state.manual_mode_enabled
+    },
+    isHeating(): String {
+      if (this.$store.state.is_heating) {
+        return "HEATING ON"
+      }
+      else {
+        return "HEATING OFF"
+      }
+    },
+    target_temperature(): Number {
+      return this.$store.state.target_temperature
+    },
+    hysteresis(): Number {
+      return this.$store.state.hysteresis
     }
   },
   components: { TimeSlotDay }
 })
 </script>
+
+<style>
+html {
+  font-size: x-large;
+}
+button {
+  font-size: large;
+}
+
+.home {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 10px;
+  grid-auto-rows: minmax(100px, auto);
+}
+.timestamp {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+}
+.current_temp {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+}
+.target_temp {
+  grid-column: 3;
+  grid-row: 1;
+  align-self: center;
+}
+.is_heating {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: center;
+}
+.switch_state {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: center;
+}
+</style>
