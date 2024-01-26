@@ -13,21 +13,11 @@
                         <option v-for="day in days" :key="day.id">{{ day.name }}</option>
                       </select>
 
-                      <label for="start_hour-select" class="label-start">Start Time : </label>
-                      <select name="hours" class="select-start-hour" id="start_hour-select" v-model="start_hour_selected">
-                        <option v-for="hour in hours" :key="hour.id">{{ hour.value }}</option>
-                      </select>
-                      <select name="minutes" class="select-start-minute" id="start_minute-select" v-model="start_minute_selected">
-                        <option v-for="minute in minutes" :key="minute.id">{{ minute.value }}</option>
-                      </select>
+                      <label class="label-start">Start Time : </label>
+                      <VueDatePicker v-model="start_time" time-picker class="start-time" minutes-increment="5" :start-time="start_time" />
 
-                      <label for="end_hour-select" class="label-end">End Time : </label>
-                      <select name="hours" class="select-end-hour" id="end_hour-select" v-model="end_hour_selected">
-                        <option v-for="hour in hours" :key="hour.id">{{ hour.value }}</option>
-                      </select>
-                      <select name="minutes" class="select-end-minute" id="end_minute-select" v-model="end_minute_selected">
-                        <option v-for="minute in minutes" :key="minute.id">{{ minute.value }}</option>
-                      </select>
+                      <label class="label-end">End Time : </label>
+                      <VueDatePicker v-model="end_time" time-picker class="end-time" minutes-increment="5" :start-time="end_time"/>
 
                       <label for="temperature-input" class="label-temperature">Temperature :</label>
                       <Slider v-model="temperature_selected" :min=14 :max=26 :step=0.5 class="temperature-input" :format="format" tooltipPosition="bottom"/>
@@ -37,7 +27,7 @@
                       <button class="modal-default-button" @click="$emit('cancel')">
                           Cancel
                       </button>
-                      <button class="modal-default-button" @click="$emit('addTimeSlot', day_selected, start_hour_selected, start_minute_selected, end_hour_selected, end_minute_selected, temperature_selected)">
+                      <button class="modal-default-button" @click="$emit('addTimeSlot', day_selected, start_time, end_time, temperature_selected)">
                           OK
                       </button>
                     </div>
@@ -50,10 +40,12 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import Slider from '@vueform/slider'
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
 
 export default defineComponent({
   emits: ['addTimeSlot', 'cancel'],
-  components: { Slider },
+  components: { Slider, VueDatePicker },
   data () {
     return {
       days: [
@@ -65,27 +57,18 @@ export default defineComponent({
         { id: 5, name: 'Saturday' },
         { id: 6, name: 'Sunday' }
       ],
-      hours: [] as { id: number, value: string }[],
-      minutes: [] as { id: number, value: string }[],
-      day_selected: '',
-      start_hour_selected: '',
-      start_minute_selected: '',
-      end_hour_selected: '',
-      end_minute_selected: '',
+      day_selected: 'Monday',
+      start_time: { hours: 0, minutes: 0 },
+      end_time: { hours: 0, minutes: 0 },
       temperature_selected: 18.0,
       format: function (temperature_selected: number) {
         return temperature_selected
       }
     }
   },
-  created () {
-    for (let i = 0; i < 24; i++) {
-      this.hours.push({ id: i, value: i.toString().padStart(2, '0') })
-    }
-    for (let i = 0; i < 60; i += 5) {
-      this.minutes.push({ id: i, value: i.toString().padStart(2, '0') })
-    }
-  }
+  created() {
+      
+  },
 })
 </script>
 
@@ -110,10 +93,10 @@ export default defineComponent({
 }
 
 .modal-container {
-  width: 800px;
+  width: 600px;
   height: 350px;
   margin: 0px auto;
-  padding: 20px 30px;
+  padding: 10px 20px;
   background-color: #fff;
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
@@ -164,42 +147,34 @@ export default defineComponent({
 
 .label-day {
   grid-column: 1 / 1;
-  grid-row: 1 / 1;
+  grid-row: 1;
 }
 .select-day {
-  grid-column: 2 / span 3;
-  grid-row: 1 / 1;
+  grid-column: 2 / span 2;
+  grid-row: 1;
 }
 .label-start {
   grid-column: 1 / 1;
-  grid-row: 2 / 2;
+  grid-row: 2;
 }
-.select-start-hour {
-  grid-column: 2 / 2;
-  grid-row: 2 / 2;
-}
-.select-start-minute {
-  grid-column: 3 / 3;
-  grid-row: 2 / 2;
+.start-time {
+  grid-column: 2 / span 2;
+  grid-row: 2;
 }
 .label-end {
   grid-column: 1 / 1;
-  grid-row: 3 / 3;
+  grid-row: 3;
 }
-.select-end-hour {
-  grid-column: 2 / 3;
-  grid-row: 3 / 3;
-}
-.select-end-minute {
-  grid-column: 3 / 3;
-  grid-row: 3 / 3;
+.end-time {
+  grid-column: 2 / span 2;
+  grid-row: 3;
 }
 .label-temperature {
   grid-column: 1 / 1;
-  grid-row: 4 / 4;
+  grid-row: 4;
 }
 .temperature-input {
-  grid-column: 2 / span 3;
-  grid-row: 4 / 4;
+  grid-column: 2 / span 2;
+  grid-row: 4;
 }
 </style>
