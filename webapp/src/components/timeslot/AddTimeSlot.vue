@@ -20,7 +20,8 @@
                       <VueDatePicker v-model="end_time" time-picker class="end-time" minutes-increment="5" :start-time="end_time"/>
 
                       <label for="temperature-input" class="label-temperature">Temperature :</label>
-                      <Slider v-model="temperature_selected" :min=14 :max=26 :step=0.5 class="temperature-input" :format="format" tooltipPosition="bottom"/>
+                      <PrettyNumberInput class="temperature-input" min=14 max=26 step=0.5 v-model="temperature_selected" />
+                      <!-- <Slider v-model="temperature_selected" :min=14 :max=26 :step=0.5 class="temperature-input" :format="format" tooltipPosition="bottom"/> -->
 
                     </div>
                     <div class="modal-footer">
@@ -38,14 +39,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import Slider from '@vueform/slider'
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
+import PrettyNumberInput from '@/components/PrettyNumberInput.vue'
 
 export default defineComponent({
   emits: ['addTimeSlot', 'cancel'],
-  components: { Slider, VueDatePicker },
+  components: { Slider, VueDatePicker, PrettyNumberInput },
   data () {
     return {
       days: [
@@ -60,15 +62,12 @@ export default defineComponent({
       day_selected: 'Monday',
       start_time: { hours: 0, minutes: 0 },
       end_time: { hours: 0, minutes: 0 },
-      temperature_selected: 18.0,
-      format: function (temperature_selected: number) {
-        return temperature_selected
-      }
+      temperature_selected: ref(18.0)
     }
   },
   created() {
       
-  },
+  }
 })
 </script>
 
