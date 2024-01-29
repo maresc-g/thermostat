@@ -1,19 +1,24 @@
 <template>
   <div class="settings">
-    <h1>This is the settings page</h1>
-    <p>Default temperature = {{ default_temperature }} </p>
-    <div>
-      <input type="checkbox" v-model="input_holiday_mode_enabled" id="holiday_mode" name="holiday_mode" @change="onInput" :value="holiday_mode_enabled" >
-      <label for="holiday_mode">Holiday Mode</label>
-      <Slider
-      v-model="manual_mode_temperature"
-      :format="format"
-      :min="10"
-      :max="30"
-      :step="0.5"
-      @change="update_manual_temperature"
-      />
-    </div>
+    <table>
+      <thead>
+        <tr>
+          <td>Name</td>
+          <td>Value</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            Hysteresis :
+          </td>
+          <td>
+            <PrettyNumberInput  class="hysteresis_input" :min=0 :max=2 :step=0.1 v-model="tmp_hysteresis"/>
+            <div style="display: none;">{{ tmp_hysteresis }}</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -21,17 +26,18 @@
 import { defineComponent } from 'vue'
 import axios from 'axios'
 import Slider from '@vueform/slider'
+import PrettyNumberInput from '@/components/PrettyNumberInput.vue'
 
 export default defineComponent({
   name: 'SettingsView',
   data () {
     return {
       input_holiday_mode_enabled: false,
-      value: 18,
-      format: function (value: number) {
-        return `${value}°C`
-      }
+      tmp_hysteresis: 0,
     }
+  },
+  mounted() {
+    this.tmp_hysteresis = this.$store.state.hysteresis
   },
   methods: {
     onInput () {
@@ -42,14 +48,14 @@ export default defineComponent({
         console.log(response)
       })
     },
-    update_manual_temperature: function(value: number) {
+    update_hysteresis: function(value: number) {
       axios
-      .put('http://localhost:8080/v1/setting', { key: 'manual_mode_temperature', value: value.toString() })
+      .put('http://localhost:8080/v1/setting', { key: 'hysteresis', value: value.toString() })
       .then(response => {
-        this.$store.commit('update_manual_temperature', value)
+        this.$store.commit('update_hysteresis', value)
         console.log(response)
       })
-    }
+    },
   },
   computed: {
     default_temperature(): String {
@@ -59,11 +65,18 @@ export default defineComponent({
       this.input_holiday_mode_enabled = this.$store.state.holiday_mode_enabled
       return this.$store.state.holiday_mode_enabled
     },
-    manual_mode_temperature(): Number {
-      return this.$store.state.manual_mode_temperature
-    },
+    hysteresis(): Number {
+      this.tmp_hysteresis = this.$store.state.hysteresis
+      return this.$store.state.hysteresis
+    }
   },
-  components: { Slider }
+  watch: {
+    tmp_hysteresis: function(newValue, oldValue) {
+      if (newValue != oldValue) {
+        this.update_hysteresis(newValue)
+      }
+    }
+  },  components: { Slider, PrettyNumberInput }
 })
 </script>
 

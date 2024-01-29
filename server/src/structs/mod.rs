@@ -8,7 +8,7 @@ pub struct TemperatureHistoryRequest {
     pub max_date: DateTime<FixedOffset>
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Copy, Clone)]
 pub struct HeaterTimeSlot {
     pub pk: Option<i64>,
     pub target_temperature: f64,

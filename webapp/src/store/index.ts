@@ -31,7 +31,10 @@ export default createStore({
     },
     update_manual_temperature(state, temperature) {
       state.manual_mode_temperature = temperature
-    }
+    },
+    update_hysteresis(state, hysteresis) {
+      state.hysteresis = hysteresis
+    },
   },
   actions: {
   },

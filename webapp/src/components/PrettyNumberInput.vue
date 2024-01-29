@@ -1,25 +1,43 @@
 <template>
     <div class="main">
         <button class="minus" @click="minus">-</button>
-        <input ref="input" class="number" type="number" :min="min" v-model="value" :max="max" :step="step"/>
+        <input ref="input" class="number" type="number" :min="min" :max="max" :step="step" v-model="model"/>
         <button class="plus" @click="plus">+</button>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref,onMounted } from 'vue'
-const props = defineProps(['min', 'max', 'step'])
-const value = defineModel()
+import { ref, onMounted } from 'vue'
+const model = defineModel({type: Number, required: true})
+const props = defineProps({
+    min: {
+        type: Number,
+        required: true
+    },
+    max: {
+        type: Number,
+        required: true
+    },
+    step: {
+        type: Number,
+        required: true
+    },
+})
 const input = ref()
 onMounted(()=>{
     input.value.focus()
+    input.value.value = model.value
 })
 
 function minus() {
-    input.value.stepDown()
+    if (model != null && model.value - props.step >= props.min) {
+        model.value = Number.parseFloat((model.value - props.step).toFixed(2))
+    }
 }
 function plus() {
-    input.value.stepUp()
+    if (model != null && model.value + props.step <= props.max) {
+        model.value = Number.parseFloat((model.value + props.step).toFixed(2))
+    }
 }
 </script>
 
@@ -39,11 +57,14 @@ input[type=number]::-webkit-outer-spin-button {
 
 .main {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    column-gap: 5px;
+    grid-template-columns: auto 1fr auto
 }
 
 .minus {
     grid-column: 1;
+    background-color: #d61e1e;
+    width: 50px;
 }
 
 .number {
@@ -52,5 +73,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 .plus {
     grid-column: 3;
+    background-color: #009914;
+    width: 50px;
 }
 </style>

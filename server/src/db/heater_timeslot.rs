@@ -22,8 +22,9 @@ pub async fn get_current_timeslot(t: &super::DbTransaction<'_>, day: &u32, time:
     Option::Some(to_heater_timeslot(&rows[0]))
 }
 
-pub async fn insert(t: &super::DbTransaction<'_>, ts: &HeaterTimeSlot) {
-    t.query("heater_timeslot/insert", &[&ts.target_temperature, &ts.day, &ts.start_time, &ts.end_time]).await.unwrap();
+pub async fn insert(t: &super::DbTransaction<'_>, ts: &HeaterTimeSlot) -> i64 {
+    let rows = t.query("heater_timeslot/insert", &[&ts.target_temperature, &ts.day, &ts.start_time, &ts.end_time]).await.unwrap();
+    rows[0].get("pk")
 }
 
 pub async fn update(t: &super::DbTransaction<'_>, ts: &HeaterTimeSlot) {

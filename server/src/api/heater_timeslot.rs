@@ -57,10 +57,11 @@ async fn get_timeslot(db: Db) -> Result<impl warp::Reply, Infallible> {
 async fn add_timeslot(ts: HeaterTimeSlot, db: Db) -> Result<impl warp::Reply, Infallible> {
     let mut dbitf = db.lock().await;
     let t = dbitf.transaction().await;
-    db::heater_timeslot::insert(&t, &ts).await;
+    let mut res = ts;
+    res.pk = Some(db::heater_timeslot::insert(&t, &ts).await);
     t.commit().await;
     Ok(warp::reply::with_status(
-        format!("{}", serde_json::to_string(&ts).unwrap()),
+        format!("{}", serde_json::to_string(&res).unwrap()),
         http::StatusCode::OK,
     ))
 }

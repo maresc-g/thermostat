@@ -9,9 +9,18 @@
 
                     <div class="modal-body">
                       <label for="day-select" class="label-day">Day : </label>
-                      <select name="days" class="select-day" id="day-select" v-model="day_selected">
+                      <Multiselect
+                        v-model="days_selected"
+                        :options="days"
+                        mode="tags"
+                        :closeOnSelect=false
+                        :closeOnDeselect=false
+                        class="select-day"
+                      />
+
+                      <!-- <select name="days" class="select-day" id="day-select" v-model="day_selected">
                         <option v-for="day in days" :key="day.id">{{ day.name }}</option>
-                      </select>
+                      </select> -->
 
                       <label class="label-start">Start Time : </label>
                       <VueDatePicker v-model="start_time" time-picker class="start-time" minutes-increment="5" :start-time="start_time" />
@@ -20,16 +29,15 @@
                       <VueDatePicker v-model="end_time" time-picker class="end-time" minutes-increment="5" :start-time="end_time"/>
 
                       <label for="temperature-input" class="label-temperature">Temperature :</label>
-                      <PrettyNumberInput class="temperature-input" min=14 max=26 step=0.5 v-model="temperature_selected" />
-                      <!-- <Slider v-model="temperature_selected" :min=14 :max=26 :step=0.5 class="temperature-input" :format="format" tooltipPosition="bottom"/> -->
+                      <PrettyNumberInput class="temperature-input" :min=14 :max=26 :step=0.5 v-model="temperature_selected" />
 
                     </div>
                     <div class="modal-footer">
-                      <button class="modal-default-button" @click="$emit('cancel')">
-                          Cancel
-                      </button>
-                      <button class="modal-default-button" @click="$emit('addTimeSlot', day_selected, start_time, end_time, temperature_selected)">
+                      <button class="modal-default-button add-button" @click="$emit('addTimeSlot', days_selected, start_time, end_time, temperature_selected)">
                           OK
+                      </button>
+                      <button class="modal-default-button cancel-button" @click="$emit('cancel')">
+                          Cancel
                       </button>
                     </div>
                 </div>
@@ -38,40 +46,34 @@
     </transition>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue'
-import Slider from '@vueform/slider'
+<script setup lang="ts">
+import { ref } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import PrettyNumberInput from '@/components/PrettyNumberInput.vue'
+import Multiselect from '@vueform/multiselect'
 
-export default defineComponent({
-  emits: ['addTimeSlot', 'cancel'],
-  components: { Slider, VueDatePicker, PrettyNumberInput },
-  data () {
-    return {
-      days: [
-        { id: 0, name: 'Monday' },
-        { id: 1, name: 'Tuesday' },
-        { id: 2, name: 'Wednesday' },
-        { id: 3, name: 'Thursday' },
-        { id: 4, name: 'Friday' },
-        { id: 5, name: 'Saturday' },
-        { id: 6, name: 'Sunday' }
-      ],
-      day_selected: 'Monday',
-      start_time: { hours: 0, minutes: 0 },
-      end_time: { hours: 0, minutes: 0 },
-      temperature_selected: ref(18.0)
-    }
-  },
-  created() {
-      
-  }
-})
+defineEmits(['addTimeSlot', 'cancel'])
+const days = [
+  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+]
+// const days = [
+//   { id: 0, name: 'Monday' },
+//   { id: 1, name: 'Tuesday' },
+//   { id: 2, name: 'Wednesday' },
+//   { id: 3, name: 'Thursday' },
+//   { id: 4, name: 'Friday' },
+//   { id: 5, name: 'Saturday' },
+//   { id: 6, name: 'Sunday' }
+// ]
+const days_selected = null
+const start_time = ref({ hours: 0, minutes: 0 })
+const end_time = ref({ hours: 0, minutes: 0 })
+const temperature_selected = ref(18.0)
 </script>
 
 <style src="@vueform/slider/themes/default.css"></style>
+<style src="@vueform/multiselect/themes/default.css"></style>
 
 <style lang="scss">
 .modal-mask {
@@ -93,7 +95,7 @@ export default defineComponent({
 
 .modal-container {
   width: 600px;
-  height: 350px;
+  height: 450px;
   margin: 0px auto;
   padding: 10px 20px;
   background-color: #fff;
@@ -119,6 +121,15 @@ export default defineComponent({
 
 .modal-default-button {
   float: right;
+  margin-left: 10px;
+}
+
+.cancel-button {
+  background-color: #d61e1e;
+}
+
+.add-button {
+  background-color: #009914;
 }
 
 /*
@@ -151,6 +162,7 @@ export default defineComponent({
 .select-day {
   grid-column: 2 / span 2;
   grid-row: 1;
+  font-size: 10px;
 }
 .label-start {
   grid-column: 1 / 1;
@@ -175,5 +187,8 @@ export default defineComponent({
 .temperature-input {
   grid-column: 2 / span 2;
   grid-row: 4;
+}
+.multiselect-tag {
+  font-size: 10px;
 }
 </style>

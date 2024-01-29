@@ -51,4 +51,12 @@ nav {
     }
   }
 }
+
+button {
+  background-color: #006eff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+}
 </style>
